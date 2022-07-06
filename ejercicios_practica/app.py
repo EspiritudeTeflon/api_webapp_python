@@ -49,20 +49,32 @@ def personas():
         # de la URL
         # limit = ...
         # offset = ....
+        limit_str = str(request.args.get('limit'))
+        offset_str = str(request.args.get('offset'))
 
+        limit = 0
+        offset = 0
+
+        if(limit_str is not None) and (limit_str.isdigit()):
+            limit = int(limit_str)
+
+        if(offset_str is not None) and (offset_str.isdigit()):
+            offset = int(offset_str)
+        
         # Debe verificar si el limit y offset son válidos cuando
         # no son especificados en la URL
-
+    
         # Alumno: Pasarle al metodo report los valores de limit y offset
-        data = persona.report()
-        
-        result = '''<h3>Alumno: Implementar la llamada
-                    al HTML tabla.html
-                    con render_template, recuerde pasar
-                    data como parámetro</h3>'''
+        data = persona.report(limit=limit, offset=offset)
+        print("Renderizar tabla.html")
+    
+        #result = '''<h3>Alumno: Implementar la llamada
+        #            al HTML tabla.html
+        #           con render_template, recuerde pasar
+         #           data como parámetro</h3>'''
         # Sacar esta linea cuando haya implementado el return
         # con render template
-        return result
+        return render_template("tabla.html", data = data)
     except:
         return jsonify({'trace': traceback.format_exc()})
 
@@ -81,19 +93,21 @@ def registro():
             name = ""
             age = 0
 
-            return "Alumno --> Realice la implementacion y borre este return"
-
             # Alumno:
             # Obtener del HTTP POST JSON el nombre y la edad
             # name = ...
             # age = ...
+            name = str(request.form.get("name")).lower()
+            age = str(request.form.get ("age"))
 
             # Alumno: descomentar la linea persona.insert una vez implementado
             # lo anterior:
             # persona.insert(name, int(age))
+            persona.insert(name, int(age))
             
             # Como respuesta al POST devolvemos la tabla de valores
             # return redirect(url_for('personas'))
+            return redirect(url_for('personas', name= name, age= age)) 
         except:
             return jsonify({'trace': traceback.format_exc()})
 
@@ -118,8 +132,11 @@ def comparativa():
         # x, y = persona.dashboard()
         # image_html = utils.graficar(x, y)
         # return Response(image_html.getvalue(), mimetype='image/png')
-
-        return "Alumno --> Realice la implementacion"
+        
+        x, y = persona.dashboard()
+        image_html= utils.graficar(x,y)
+        #return "Alumno --> Realice la implementacion" 
+        return Response(image_html.getvalue(), mimetype= "image/png")
     except:
         return jsonify({'trace': traceback.format_exc()})
 
